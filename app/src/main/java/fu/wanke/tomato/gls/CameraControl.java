@@ -139,6 +139,10 @@ public class CameraControl {
         glRender.onDestroy();
     }
 
+    public void switchCamera() {
+        cameraEngine.switchCamera();
+    }
+
 
     public interface PreviewSizeChangedCallback{
         void updatePreviewSize(int previewWidth,int previewHeight);

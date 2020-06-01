@@ -57,6 +57,8 @@ public class CameraEngine implements Camera.PreviewCallback, SurfaceTexture.OnFr
     private double lastZoomValueRec;
     private int lastZoomValue;
 
+    private boolean facingFront;
+
     public CameraEngine(Context context) {
         this.mContext = context;
         frameWidth=480; frameHeight=640;
@@ -102,6 +104,8 @@ public class CameraEngine implements Camera.PreviewCallback, SurfaceTexture.OnFr
      * @return
      */
     public boolean openCamera(boolean facingFront) {
+
+        this.facingFront  = facingFront;
 
         synchronized (this) {
             int facing = facingFront ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
@@ -314,6 +318,16 @@ public class CameraEngine implements Camera.PreviewCallback, SurfaceTexture.OnFr
     @Override
     public void onAutoFocus(boolean b, Camera camera) {
 
+    }
+
+    public void switchCamera() {
+
+
+
+        stopPreview();
+        releaseCamera();
+        openCamera(!facingFront);
+        startPreview();
     }
 
 

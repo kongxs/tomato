@@ -2,6 +2,7 @@ package fu.wanke.tomato;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.View;
 import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +35,12 @@ public class MainActivity extends AppCompatActivity {
         GLRootSurfaceView surfaceView = findViewById(R.id.gl_root_surface);
         cameraControl = new CameraControl(this,surfaceView);
 
+        findViewById(R.id.flip).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cameraControl.switchCamera();
+            }
+        });
     }
 
     @Override
