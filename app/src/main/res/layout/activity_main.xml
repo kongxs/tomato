@@ -19,9 +19,9 @@
         android:layout_alignParentRight="true"
         android:id="@+id/flip"
         android:src="@drawable/camera_front"
-        android:layout_width="wrap_content"
+        android:layout_width="70dp"
         android:scaleType="centerInside"
-        android:layout_height="wrap_content" />
+        android:layout_height="70dp" />
 
 
 
