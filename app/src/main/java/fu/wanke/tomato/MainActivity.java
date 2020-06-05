@@ -7,12 +7,10 @@ import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import fu.wanke.tomato.gls.CameraControl;
 import fu.wanke.tomato.gls.GLRootSurfaceView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private CameraControl cameraControl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,35 +31,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         GLRootSurfaceView surfaceView = findViewById(R.id.gl_root_surface);
-        cameraControl = new CameraControl(this,surfaceView);
 
-        findViewById(R.id.flip).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                cameraControl.switchCamera();
-            }
-        });
+//        surfaceView.enableBeauty(true);
     }
 
-    @Override
-    protected void onPause(){
-        super.onPause();
-        if(cameraControl!=null)
-            cameraControl.onPause();
-    }
 
-    @Override
-    protected void onResume(){
-        super.onResume();
-        if(cameraControl!=null)
-            cameraControl.onResume();
-    }
-
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        if(cameraControl!=null)
-            cameraControl.onDestroy();
-    }
 
 }

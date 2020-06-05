@@ -1,207 +1,138 @@
 package fu.wanke.tomato.gls;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import fu.wanke.tomato.Logger;
-import fu.wanke.tomato.camera.CameraEngine;
-import fu.wanke.tomato.camera.DirectDrawer;
-import fu.wanke.tomato.filter.GPUVideoFilter;
-import fu.wanke.tomato.filter.GPUVideoGrayscaleFilter;
+import fu.wanke.tomato.camera.Camera2Helper;
+import fu.wanke.tomato.filter.BeautifyFilter;
+import fu.wanke.tomato.filter.CameraFilter;
+import fu.wanke.tomato.filter.ScreenFilter;
 
-public class GLRender implements GLSurfaceView.Renderer {
+public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener, Camera2Helper.OnPreviewSizeListener, Camera2Helper.OnPreviewListener {
 
     private final Context mContext;
-    private final CameraEngine cameraEngine;
-    private final LinkedList<Runnable> mPostDrawTaskList;
-    private int surfaceWidth;
-    private int surfaceHeight;
-    private boolean isCameraFacingFront ;
-    private int mTextureID;
-    private DirectDrawer directDrawer;
+    private final GLRootSurfaceView glRenderView;
+    private Camera2Helper camera2Helper;
+    private int[] mTextures;
+    private SurfaceTexture mSurfaceTexture;
+    private CameraFilter cameraFilter;
+    private ScreenFilter screenFilter;
+    private float[] mtx = new float[16];
+    private int mPreviewWdith;
+    private int mPreviewHeight;
 
-    private final LinkedList<Runnable> mRunOnDraw;
+    private BeautifyFilter beaytyFilter;
+    private int screenSurfaceWid;
+    private int screenSurfaceHeight;
+    private int screenX;
+    private int screenY;
 
-    private  GPUVideoFilter mFilter;
+    public GLRender(Context context , GLRootSurfaceView view) {
+        this.mContext = context;
+        this.glRenderView = view;
 
-    private final FloatBuffer mGLCubeBuffer;
-    private final FloatBuffer mGLTextureBuffer;
-
-    public static final float CUBE[] = {
-            -1.0f, -1.0f,
-            1.0f, -1.0f,
-            -1.0f, 1.0f,
-            1.0f, 1.0f,
-    };
-
-    public static float TEXTURE_NO_ROTATION[] = {
-            1.0f, 1.0f,
-            1.0f, 0.0f,
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-    };
-
-    public GLRender(Context mContext, CameraEngine cameraEngine) {
-        this.mContext = mContext;
-        this.cameraEngine = cameraEngine;
-
-        mFilter = new GPUVideoFilter();
-
-        mPostDrawTaskList=new LinkedList<>();
-
-        mRunOnDraw = new LinkedList<>();
-
-        mGLCubeBuffer = ByteBuffer.allocateDirect(CUBE.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        mGLCubeBuffer.put(CUBE).position(0);
-
-//        if (!isCameraFacingFront) {
-//            TEXTURE_NO_ROTATION = new float[]{
-//                    1.0f, 1.0f,
-//                    1.0f, 0.0f,
-//                    0.0f, 1.0f,
-//                    0.0f, 0.0f,
-//            };
-//        }
-
-
-        mGLTextureBuffer = ByteBuffer.allocateDirect(TEXTURE_NO_ROTATION.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        mGLTextureBuffer.put(TEXTURE_NO_ROTATION);
-
-        setFilter(new GPUVideoGrayscaleFilter());
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
+        camera2Helper = new Camera2Helper((Activity) glRenderView.getContext());
+
+        mTextures = new int[1];
+        //创建一个纹理
+        GLES20.glGenTextures(mTextures.length, mTextures, 0);
+        //将纹理和离屏buffer绑定
+        mSurfaceTexture = new SurfaceTexture(mTextures[0]);
+
+        mSurfaceTexture.setOnFrameAvailableListener(this);
+
+        //使用fbo 将samplerExternalOES 输入到sampler2D中
+        cameraFilter = new CameraFilter(glRenderView.getContext());
+        //负责将图像绘制到屏幕上
+        screenFilter = new ScreenFilter(glRenderView.getContext());
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
-        this.surfaceWidth=width;
-        this.surfaceHeight=height;
-        GLES20.glViewport(0,0,width,height);
-//        filterGroup.onFilterChanged(width,height);
-//        fbo=FBO.newInstance().create(surfaceWidth,surfaceHeight);
-        if(cameraEngine.isCameraOpened()){
-            cameraEngine.stopPreview();
-            cameraEngine.releaseCamera();
-        }
+        camera2Helper.setPreviewSizeListener(this);
+        camera2Helper.setOnPreviewListener(this);
+        //打开相机
+        camera2Helper.openCamera(width, height, mSurfaceTexture);
 
-        createTextureID();
+        float scaleX = (float) mPreviewHeight / (float) width;
+        float scaleY = (float) mPreviewWdith / (float) height;
 
-        mFilter.init();
-        GLES20.glUseProgram(mFilter.getProgram());
-        mFilter.onOutputSizeChanged(width, height);
+        float max = Math.max(scaleX, scaleY);
 
-        directDrawer = new DirectDrawer(mTextureID);
+        screenSurfaceWid = (int) (mPreviewHeight / max);
+        screenSurfaceHeight = (int) (mPreviewWdith / max);
+        screenX = width - (int) (mPreviewHeight / max);
+        screenY = height - (int) (mPreviewWdith / max);
 
-        cameraEngine.setTexture(mTextureID);
-
-        cameraEngine.openCamera(isCameraFacingFront);
-        cameraEngine.startPreview();
-    }
-
-    private void createTextureID() {
-        int[] texture = new int[1];
-
-        GLES20.glGenTextures(1, texture, 0);
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture[0]);
-        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
-                GL10.GL_TEXTURE_MIN_FILTER,GL10.GL_LINEAR);
-        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
-                GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
-                GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
-                GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE);
-
-        mTextureID = texture[0];
+        //prepare 传如 绘制到屏幕上的宽 高 起始点的X坐标 起使点的Y坐标
+        cameraFilter.prepare(screenSurfaceWid, screenSurfaceHeight, screenX, screenY);
+        screenFilter.prepare(screenSurfaceWid, screenSurfaceHeight, screenX, screenY);
     }
 
     @Override
     public void onDrawFrame(GL10 gl10) {
+        int textureId;
+        // 配置屏幕
+        //清理屏幕 :告诉opengl 需要把屏幕清理成什么颜色
+        GLES20.glClearColor(0, 0, 0, 0);
+        //执行上一个：glClearColor配置的屏幕颜色
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
-        long timeStamp=cameraEngine.doTextureUpdate(directDrawer);
-//        runPostDrawTasks();
+        //更新获取一张图
+        mSurfaceTexture.updateTexImage();
 
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        runAll(mRunOnDraw);
-        mFilter.onDraw(mTextureID, mGLCubeBuffer, mGLTextureBuffer);
-//        runAll(mRunOnDrawEnd);
+        mSurfaceTexture.getTransformMatrix(mtx);
+        //cameraFiler需要一个矩阵，是Surface和我们手机屏幕的一个坐标之间的关系
+        cameraFilter.setMatrix(mtx);
 
-    }
+        textureId = cameraFilter.onDrawFrame(mTextures[0]);
 
-    private void runAll(Queue<Runnable> queue) {
-        synchronized (queue) {
-            while (!queue.isEmpty()) {
-                queue.poll().run();
-            }
+        // other filter ...
+
+
+        if (beaytyFilter != null) {
+            textureId = beaytyFilter.onDrawFrame(textureId);
         }
+
+        int id = screenFilter.onDrawFrame(textureId);
     }
 
-    public void runPostDrawTasks() {
-        while (!mPostDrawTaskList.isEmpty()) {
-            mPostDrawTaskList.removeFirst().run();
-        }
+    @Override
+    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+        glRenderView.requestRender();
     }
 
-    public void addPostDrawTask(final Runnable runnable) {
-        synchronized (mPostDrawTaskList) {
-            mPostDrawTaskList.addLast(runnable);
-        }
+    @Override
+    public void onSize(int width, int height) {
+        mPreviewWdith = width;
+        mPreviewHeight = height;
     }
 
-    public void setFilter(final GPUVideoFilter filter) {
-        runOnDraw(new Runnable() {
+    @Override
+    public void onPreviewFrame(byte[] data, int len) {
+//        Logger.error("onPreviewFrame : " + len);
 
-            @Override
-            public void run() {
-                final GPUVideoFilter oldFilter = mFilter;
-                mFilter = filter;
-                if (oldFilter != null) {
-                    oldFilter.destroy();
-                }
-                mFilter.init();
-                GLES20.glUseProgram(mFilter.getProgram());
-                mFilter.onOutputSizeChanged(surfaceWidth, surfaceHeight);
-            }
-        });
     }
 
-    protected void runOnDraw(final Runnable runnable) {
-        synchronized (mRunOnDraw) {
-            mRunOnDraw.add(runnable);
-        }
-    }
+    public void enableBeauty(boolean enable) {
+        if (enable) {
 
-    public void onPause(){
-        if(cameraEngine.isCameraOpened()){
-            cameraEngine.stopPreview();
-            cameraEngine.releaseCamera();
-        }
-    }
+            beaytyFilter = new BeautifyFilter(mContext);
+            beaytyFilter.prepare(screenSurfaceWid, screenSurfaceHeight, screenX, screenY);
 
-    public void onResume() {
-    }
-
-    public void onDestroy(){
-        if(cameraEngine.isCameraOpened()){
-            cameraEngine.releaseCamera();
+        } else {
+            beaytyFilter.release();
+            beaytyFilter = null;
         }
     }
 }
