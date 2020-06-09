@@ -2,12 +2,15 @@ package fu.wanke.tomato;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import fu.wanke.tomato.gls.BoundingBoxView;
 import fu.wanke.tomato.gls.GLRootSurfaceView;
+import fu.wanke.tomato.jni.Faces;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,11 +33,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
-        GLRootSurfaceView surfaceView = findViewById(R.id.gl_root_surface);
+        final GLRootSurfaceView surfaceView = findViewById(R.id.gl_root_surface);
+
+        SurfaceHolder holder = surfaceView.getHolder();
+
+        final BoundingBoxView boundingBoxView = findViewById(R.id.boxView);
+
+        surfaceView.setOnDetectorListener(new GLRootSurfaceView.OnDetectorListener() {
+            @Override
+            public void onDetector(Faces faces) {
+                boundingBoxView.setResults(faces);
+            }
+        });
 
 //        surfaceView.enableBeauty(true);
     }
-
 
 
 }

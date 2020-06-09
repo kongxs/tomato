@@ -13,6 +13,8 @@ import fu.wanke.tomato.camera.Camera2Helper;
 import fu.wanke.tomato.filter.BeautifyFilter;
 import fu.wanke.tomato.filter.CameraFilter;
 import fu.wanke.tomato.filter.ScreenFilter;
+import fu.wanke.tomato.jni.FaceTracker;
+import fu.wanke.tomato.jni.Faces;
 
 public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener, Camera2Helper.OnPreviewSizeListener, Camera2Helper.OnPreviewListener {
 
@@ -32,6 +34,8 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
     private int screenSurfaceHeight;
     private int screenX;
     private int screenY;
+    private FaceTracker tracker;
+    private GLRootSurfaceView.OnDetectorListener mListener;
 
     public GLRender(Context context , GLRootSurfaceView view) {
         this.mContext = context;
@@ -42,6 +46,10 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
         camera2Helper = new Camera2Helper((Activity) glRenderView.getContext());
+
+        tracker = new FaceTracker(camera2Helper);
+        tracker.init();
+
 
         mTextures = new int[1];
         //创建一个纹理
@@ -77,6 +85,8 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
         //prepare 传如 绘制到屏幕上的宽 高 起始点的X坐标 起使点的Y坐标
         cameraFilter.prepare(screenSurfaceWid, screenSurfaceHeight, screenX, screenY);
         screenFilter.prepare(screenSurfaceWid, screenSurfaceHeight, screenX, screenY);
+
+        tracker.set(screenSurfaceWid,screenSurfaceHeight);
     }
 
     @Override
@@ -98,6 +108,11 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
         textureId = cameraFilter.onDrawFrame(mTextures[0]);
 
         // other filter ...
+
+        Faces faces = tracker.faces;
+        if (faces != null) {
+            mListener.onDetector(faces);
+        }
 
 
         if (beaytyFilter != null) {
@@ -121,7 +136,11 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
     @Override
     public void onPreviewFrame(byte[] data, int len) {
 //        Logger.error("onPreviewFrame : " + len);
+        tracker.doDetector(data);
+    }
 
+    public void onSurfaceDestory() {
+        camera2Helper.closeCamera();
     }
 
     public void enableBeauty(boolean enable) {
@@ -135,4 +154,9 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
             beaytyFilter = null;
         }
     }
+
+    public void setOnDetectorListener(GLRootSurfaceView.OnDetectorListener listener) {
+        this.mListener = listener;
+    }
+
 }

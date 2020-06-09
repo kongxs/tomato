@@ -1,8 +1,16 @@
 package fu.wanke.tomato.gls;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.view.SurfaceHolder;
+
+import fu.wanke.tomato.jni.Faces;
 
 public class GLRootSurfaceView extends GLSurfaceView {
 
@@ -24,9 +32,14 @@ public class GLRootSurfaceView extends GLSurfaceView {
         renderer = new GLRender(context,this);
         setRenderer(renderer);
         setRenderMode(RENDERMODE_WHEN_DIRTY);
-
     }
 
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        super.surfaceDestroyed(holder);
+        renderer.onSurfaceDestory();
+    }
 
     public void enableBeauty(final boolean enable) {
         queueEvent(new Runnable() {
@@ -36,4 +49,15 @@ public class GLRootSurfaceView extends GLSurfaceView {
             }
         });
     }
+
+    public void setOnDetectorListener(OnDetectorListener listener) {
+        renderer.setOnDetectorListener(listener);
+    }
+
+
+    public interface OnDetectorListener {
+        void onDetector(Faces faces);
+    }
+
+
 }
