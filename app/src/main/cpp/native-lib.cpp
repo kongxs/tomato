@@ -2,6 +2,7 @@
 #include <android/bitmap.h>
 #include "matutil.h"
 #include <jni.h>
+#include <alignment/include/face_alignment.h>
 
 using namespace cv;
 using namespace std;
@@ -10,6 +11,7 @@ using namespace std;
 //人脸检测核心模型
 
 CascadeClassifier faceCascade;//opencv
+Ptr<seeta::FaceAlignment> faceAlignment;
 
 #define TAG "opencvLogTesst"
 
@@ -18,12 +20,19 @@ CascadeClassifier faceCascade;//opencv
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_fu_wanke_tomato_jni_FaceTracker_init(JNIEnv *env, jobject thiz, jstring model) {
+Java_fu_wanke_tomato_jni_FaceTracker_init(JNIEnv *env, jobject thiz, jstring model,
+        jstring seatPath) {
 //    faceCascade.load("/storage/emulated/0/haarcascade_frontalface_alt2.xml");
 
     const char *path = env->GetStringUTFChars(model, JNI_FALSE);
-    LOGE("load xml file path :  %s \n " , path);
+
     faceCascade.load(path);
+
+
+
+    const char *seatPat = env->GetStringUTFChars(seatPath, JNI_FALSE);
+
+    faceAlignment = makePtr<seeta::FaceAlignment>(seatPat);
 
     LOGE("dlib init success ...");
 }
@@ -74,12 +83,20 @@ Java_fu_wanke_tomato_jni_FaceTracker_detector(JNIEnv *env, jobject thiz, jbyteAr
     std::vector<Rect> faces;
 
 
+
     faceCascade.detectMultiScale(gray, faces, 1.2, 5, 0, Size(30, 30));
 
     int x = -1;
     int y = -1;
     int wid = 0;
     int hei = 0;
+
+    jclass pJclass = env->FindClass("fu/wanke/tomato/jni/Faces");
+
+    jmethodID conMethodId = env->GetMethodID(pJclass, "<init>", "()V");
+    jmethodID setMethodId = env->GetMethodID(pJclass, "set", "(IIIIII)V");
+
+    jobject face = env->NewObject(pJclass, conMethodId);
     
     if (faces.size() > 0) {
         
@@ -89,18 +106,41 @@ Java_fu_wanke_tomato_jni_FaceTracker_detector(JNIEnv *env, jobject thiz, jbyteAr
 
         hei = rect.height;
         wid = rect.width;
+
+
+
+        seeta::FacialLandmark points[5];
+        seeta::ImageData imageData(gray.cols, gray.rows);
+//
+        imageData.data = gray.data;
+        seeta::FaceInfo faceInfo;
+        seeta::Rect bbox;
+
+        bbox.x = x;
+        bbox.y = y;
+        bbox.width = width;
+        bbox.height = height;
+
+        faceInfo.bbox = bbox;
+        //检测 人眼 等五个点
+        faceAlignment->PointDetectLandmarks(imageData, faceInfo, points);
+
+        jmethodID methodId = env->GetMethodID(pJclass, "addPoint", "(II)V");
+
+        for (int i = 0; i < 5; ++i) {
+            double d = points[i].x;
+            double d1 = points[i].y;
+
+            env->CallVoidMethod(face,methodId,(int)d,(int)d1);
+        }
+        
     }
 
-//    circle(src, Point(x, y), 10, Scalar(65, 105, 255), 4, 8, 0);
-//    rectangle(src,Rect(x,y,wid,hei),Scalar(65, 105, 255));
+//    jmethodID pJmethodId = env->GetStaticMethodID(pJclass, "create",
+//                                                  "(IIIIII)Lfu/wanke/tomato/jni/Faces;");
 
+    env->CallVoidMethod(face,setMethodId,x,y,wid,hei,src.cols,src.rows);
 
-
-    jclass pJclass = env->FindClass("fu/wanke/tomato/jni/Faces");
-
-    jmethodID pJmethodId = env->GetStaticMethodID(pJclass, "create",
-                                                  "(IIIIII)Lfu/wanke/tomato/jni/Faces;");
-
-    return env->CallStaticObjectMethod(pJclass,pJmethodId,x,y,wid,hei,src.cols,src.rows);
+    return face;
 
 }

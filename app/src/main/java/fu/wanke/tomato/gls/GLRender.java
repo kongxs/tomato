@@ -24,7 +24,6 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
 
     private final Context mContext;
     private final GLRootSurfaceView glRenderView;
-    private final String dst;
     private Camera2Helper camera2Helper;
     private int[] mTextures;
     private SurfaceTexture mSurfaceTexture;
@@ -46,20 +45,29 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
         this.mContext = context;
         this.glRenderView = view;
 
+        camera2Helper = new Camera2Helper((Activity) glRenderView.getContext());
+
+        tracker = new FaceTracker(camera2Helper);
+
+
         String modelFile = "haarcascade_frontalface_alt2.xml";
-        dst = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +
+        String model = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +
                 modelFile;
+
         OpenGlUtils.copyAssets2SdCard(context , modelFile,
-                dst);
+                model);
+
+
+        String seatFile = "seeta_fa_v1.1.bin";
+        String seatPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +
+                seatFile;
+        OpenGlUtils.copyAssets2SdCard(context , seatFile,
+                seatPath);
+        tracker.initinal(model , seatPath);
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
-        camera2Helper = new Camera2Helper((Activity) glRenderView.getContext());
-
-        tracker = new FaceTracker(camera2Helper);
-        tracker.initinal(dst);
-
 
         mTextures = new int[1];
         //创建一个纹理

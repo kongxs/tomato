@@ -11,6 +11,9 @@ cmake_minimum_required(VERSION 3.4.1)
 # Gradle automatically packages shared libraries with your APK.
 
 
+add_subdirectory(src/main/cpp/alignment)
+
+
 # 设置native目录
 set(NATIVE_DIR ${CMAKE_SOURCE_DIR}/src/main/cpp)
 
@@ -63,6 +66,7 @@ target_link_libraries( # Specifies the target library.
                         libopencv_java
                         android
                         jnigraphics
+                        seeta_fa_lib
                        # Links the target library to the log library
                        # included in the NDK.
                        ${log-lib} )

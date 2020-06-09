@@ -1,5 +1,11 @@
 package fu.wanke.tomato.jni;
 
+import android.graphics.Point;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class Faces {
 
     private int x ;
@@ -12,20 +18,26 @@ public class Faces {
     private int screenW;
     private int screenH;
 
+    private List<Point> points = new ArrayList<>();
 
-    public static Faces create(int x , int y ,int  width ,int height , int imgWidth ,int imgHeight) {
 
-        Faces faces = new Faces();
-        faces.setX(x);
-        faces.setY(y);
-        faces.setWidth(width);
-        faces.setHeight(height);
-        faces.setImgHeight(imgHeight);
-        faces.setImgWidth(imgWidth);
-        return faces;
-
+    public void set(int x , int y ,int  width ,int height , int imgWidth ,int imgHeight) {
+        setX(x);
+        setY(y);
+        setWidth(width);
+        setHeight(height);
+        setImgHeight(imgHeight);
+        setImgWidth(imgWidth);
     }
 
+    public void  addPoint(int x, int y) {
+        Point point = new Point(x, y);
+        this.points.add(point);
+    }
+
+    public List<Point> getPoints() {
+        return points;
+    }
 
     public int getScreenW() {
         return screenW;
@@ -107,6 +119,7 @@ public class Faces {
                 ", imgHeight=" + imgHeight +
                 ", screenW=" + screenW +
                 ", screenH=" + screenH +
+                ", points=" + points.toString() +
                 '}';
     }
 }
