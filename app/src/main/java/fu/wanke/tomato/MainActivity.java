@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -43,6 +45,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDetector(Faces faces) {
                 boundingBoxView.setResults(faces);
+            }
+        });
+
+        CheckBox beauty = findViewById(R.id.beauty);
+        beauty.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                surfaceView.enableBeauty(isChecked);
             }
         });
 
