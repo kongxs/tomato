@@ -119,7 +119,6 @@ public class OpenGlUtils {
                 }
                 is.close();
                 fos.close();
-
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -5,10 +5,14 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.Environment;
+
+import java.io.File;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import fu.wanke.tomato.OpenGlUtils;
 import fu.wanke.tomato.camera.Camera2Helper;
 import fu.wanke.tomato.filter.BeautifyFilter;
 import fu.wanke.tomato.filter.CameraFilter;
@@ -20,6 +24,7 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
 
     private final Context mContext;
     private final GLRootSurfaceView glRenderView;
+    private final String dst;
     private Camera2Helper camera2Helper;
     private int[] mTextures;
     private SurfaceTexture mSurfaceTexture;
@@ -41,6 +46,11 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
         this.mContext = context;
         this.glRenderView = view;
 
+        String modelFile = "haarcascade_frontalface_alt2.xml";
+        dst = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +
+                modelFile;
+        OpenGlUtils.copyAssets2SdCard(context , modelFile,
+                dst);
     }
 
     @Override
@@ -48,7 +58,7 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
         camera2Helper = new Camera2Helper((Activity) glRenderView.getContext());
 
         tracker = new FaceTracker(camera2Helper);
-        tracker.init();
+        tracker.initinal(dst);
 
 
         mTextures = new int[1];

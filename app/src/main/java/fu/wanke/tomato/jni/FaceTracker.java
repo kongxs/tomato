@@ -54,9 +54,9 @@ public class FaceTracker {
 
     }
 
-    public void init() {
+    public void initinal(String path) {
         isInitinal = false;
-        init("");
+        init(path);
         isInitinal = true;
 
     }

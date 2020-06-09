@@ -19,7 +19,12 @@ CascadeClassifier faceCascade;//opencv
 extern "C"
 JNIEXPORT void JNICALL
 Java_fu_wanke_tomato_jni_FaceTracker_init(JNIEnv *env, jobject thiz, jstring model) {
-    faceCascade.load("/storage/emulated/0/haarcascade_frontalface_alt2.xml");
+//    faceCascade.load("/storage/emulated/0/haarcascade_frontalface_alt2.xml");
+
+    const char *path = env->GetStringUTFChars(model, JNI_FALSE);
+    LOGE("load xml file path :  %s \n " , path);
+    faceCascade.load(path);
+
     LOGE("dlib init success ...");
 }
 
