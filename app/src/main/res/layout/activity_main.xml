@@ -39,5 +39,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    <CheckBox
+        android:layout_toRightOf="@+id/beauty"
+        android:layout_marginBottom="15dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/bigeye"
+        android:text="bigeye"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
 
 </RelativeLayout>

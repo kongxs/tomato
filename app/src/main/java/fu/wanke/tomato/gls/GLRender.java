@@ -15,6 +15,7 @@ import javax.microedition.khronos.opengles.GL10;
 import fu.wanke.tomato.OpenGlUtils;
 import fu.wanke.tomato.camera.Camera2Helper;
 import fu.wanke.tomato.filter.BeautifyFilter;
+import fu.wanke.tomato.filter.BigEyeFilter;
 import fu.wanke.tomato.filter.CameraFilter;
 import fu.wanke.tomato.filter.ScreenFilter;
 import fu.wanke.tomato.jni.FaceTracker;
@@ -34,6 +35,7 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
     private int mPreviewHeight;
 
     private BeautifyFilter beaytyFilter;
+    private BigEyeFilter bigEyeFilter;
     private int screenSurfaceWid;
     private int screenSurfaceHeight;
     private int screenX;
@@ -137,6 +139,12 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
             textureId = beaytyFilter.onDrawFrame(textureId);
         }
 
+        if (bigEyeFilter != null) {
+            bigEyeFilter.setFace(faces);
+            textureId = bigEyeFilter.onDrawFrame(textureId);
+        }
+
+
         int id = screenFilter.onDrawFrame(textureId);
     }
 
@@ -170,6 +178,18 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
         } else {
             beaytyFilter.release();
             beaytyFilter = null;
+        }
+    }
+
+    public void enableBigEye(boolean enable) {
+        if (enable) {
+
+            bigEyeFilter = new BigEyeFilter(mContext);
+            bigEyeFilter.prepare(screenSurfaceWid, screenSurfaceHeight, screenX, screenY);
+
+        } else {
+            bigEyeFilter.release();
+            bigEyeFilter = null;
         }
     }
 

@@ -56,6 +56,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        CheckBox bigeye = findViewById(R.id.bigeye);
+        bigeye.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                surfaceView.enableBigEye(isChecked);
+            }
+        });
+
 //        surfaceView.enableBeauty(true);
     }
 

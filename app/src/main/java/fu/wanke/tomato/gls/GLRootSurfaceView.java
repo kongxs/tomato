@@ -50,6 +50,15 @@ public class GLRootSurfaceView extends GLSurfaceView {
         });
     }
 
+    public void enableBigEye(final boolean enable) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                renderer.enableBigEye(enable);
+            }
+        });
+    }
+
     public void setOnDetectorListener(OnDetectorListener listener) {
         renderer.setOnDetectorListener(listener);
     }

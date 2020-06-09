@@ -41,6 +41,7 @@ public class BoundingBoxView extends SurfaceView implements SurfaceHolder.Callba
         mPaint.setColor(Color.RED);
         mPaint.setStrokeWidth(5f);
         mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setTextSize(25);
 
         mPaintYello = new Paint(mPaint);
         mPaintYello.setColor(Color.YELLOW);
@@ -98,7 +99,8 @@ public class BoundingBoxView extends SurfaceView implements SurfaceHolder.Callba
             x1 = (int) ((float) x1 / faces.getImgWidth() * faces.getScreenW());
             y1 = (int) ((float) y1 / faces.getImgHeight() * faces.getScreenH());
 
-            canvas.drawCircle(x1, y1,10,mPaint);
+//            canvas.drawCircle(x1, y1,10,mPaint);
+            canvas.drawText(""+i , x1,y1,mPaint);
 
         }
 
