@@ -1,10 +1,10 @@
 //
-// Created by 孔祥书 on 2020/5/21.
+// Created by  on 2020/5/21.
 //
 
 #include "matutil.h"
 //
-// Created by 孔祥书 on 2020/5/21.
+// Created by  on 2020/5/21.
 //
 #include <jni.h>
 #include <string>

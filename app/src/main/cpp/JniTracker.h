@@ -1,5 +1,5 @@
 //
-// Created by 孔祥书 on 2020/6/10.
+// Created by  on 2020/6/10.
 //
 
 #ifndef TOMATO_JNITRACKER_H
@@ -29,6 +29,10 @@ public:
 
         conMethodId = env->GetMethodID(pJclass, "<init>", "()V");
 
+        clearMethod = env->GetMethodID(pJclass, "clearPoint", "()V");
+
+        face = env->NewGlobalRef(env->NewObject(pJclass, conMethodId));
+
     }
 
     void init(JNIEnv *env,const char *model, const char *seeta);
@@ -42,6 +46,8 @@ private:
     jmethodID methodId;
     jclass pJclass;
     jmethodID conMethodId;
+    jmethodID clearMethod;
+    jobject face;
 
 };
 

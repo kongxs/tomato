@@ -35,6 +35,10 @@ public class Faces {
         this.points.add(point);
     }
 
+    public void clearPoint() {
+        this.points.clear();
+    }
+
     public List<Point> getPoints() {
         return points;
     }

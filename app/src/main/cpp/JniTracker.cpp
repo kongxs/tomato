@@ -1,5 +1,5 @@
 //
-// Created by 孔祥书 on 2020/6/10.
+// Created by  on 2020/6/10.
 //
 
 #include "JniTracker.h"
@@ -19,7 +19,7 @@ jobject JniTracker::startDetector(JNIEnv *env,const Mat& gray,
     int wid = 0;
     int hei = 0;
 
-    jobject face = env->NewObject(pJclass, conMethodId);
+    env->CallVoidMethod(face,clearMethod);
 
     if (faces.size() > 0) {
 
