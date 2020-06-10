@@ -21,3 +21,5 @@ jobject getConfig(JNIEnv *env , jobject origin);
 jobject getConfig(JNIEnv *env);
 
 jobject decodeBitmap(JNIEnv *env , jstring path);
+
+void Jpegcompress(const cv::Mat& src, cv::Mat& dest, int quality);

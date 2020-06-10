@@ -74,6 +74,7 @@ Java_fu_wanke_tomato_jni_FaceTracker_detector(JNIEnv *env, jobject thiz, jlong  
 
     Mat src(height + height / 2, width, CV_8UC1, data);
 
+
     //颜色格式的转换 nv21->RGBA
     //将 nv21的yuv数据转成了rgba
     cvtColor(src, src, COLOR_YUV2RGBA_I420);
@@ -85,6 +86,10 @@ Java_fu_wanke_tomato_jni_FaceTracker_detector(JNIEnv *env, jobject thiz, jlong  
 //        顺时针旋转90度
 //        rotate(src, src, ROTATE_90_CLOCKWISE);
 //    }
+
+//    Jpegcompress(src,src,40);
+
+//    imwrite(path1,src);
 
     Mat gray;
     //灰色

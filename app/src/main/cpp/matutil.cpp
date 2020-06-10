@@ -160,7 +160,20 @@ jobject decodeBitmap(JNIEnv *env , jstring file_path) {
 }
 
 
+void Jpegcompress(const cv::Mat& src, cv::Mat& dest, int quality)
+{
+    std::vector<uchar> buff;
+    std::vector<int> params;
+    /*IMWRITE_JPEG_QUALITY For JPEG, it can be a quality from 0 to 100
+     (the higher is the better). Default value is 95 */
+    params.push_back(cv::IMWRITE_JPEG_QUALITY);
+    params.push_back(quality);
+    //将图像压缩编码到缓冲流区域
+    cv::imencode(".jpg", src, buff, params);
+    //将压缩后的缓冲流内容解码为Mat，进行后续的处理
+    dest = cv::imdecode(buff, -1);
 
+}
 
 
 
