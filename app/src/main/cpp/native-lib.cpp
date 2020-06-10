@@ -14,18 +14,21 @@ using namespace std;
 CascadeClassifier faceCascade;//opencv
 Ptr<seeta::FaceAlignment> faceAlignment;
 
+JavaVM *g_javaVM;
+JniTracker *tracker;
+
+
 #define TAG "opencvLogTesst"
 
 #define LOGE(FORMAT,...) __android_log_print(ANDROID_LOG_ERROR, TAG, FORMAT, ##__VA_ARGS__);
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 
+    g_javaVM = vm;
+    JNIEnv *env;
+    vm->GetEnv((void **) &env, JNI_VERSION_1_6);
 
-//    JNIEnv* env = NULL;
-//    if (vm->GetEnv((void **)&env, JNI_VERSION_1_4) != JNI_OK) {
-//        LOGE("get env error ") ;
-//        return JNI_VERSION_1_6;
-//    }
+    tracker = new JniTracker(env);
 
     return JNI_VERSION_1_6;
 }
@@ -40,12 +43,9 @@ Java_fu_wanke_tomato_jni_FaceTracker_init(JNIEnv *env, jobject thiz, jstring mod
         jstring seatPath) {
 //    faceCascade.load("/storage/emulated/0/haarcascade_frontalface_alt2.xml");
 
-    JniTracker *tracker = new JniTracker();
-
     const char *path = env->GetStringUTFChars(model, JNI_FALSE);
 
     faceCascade.load(path);
-
 
 
     const char *seatPat = env->GetStringUTFChars(seatPath, JNI_FALSE);

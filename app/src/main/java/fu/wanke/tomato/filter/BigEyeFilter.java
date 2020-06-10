@@ -42,6 +42,7 @@ public class BigEyeFilter extends AbstractFBOFilter {
     public int onDrawFrame(int textureId) {
 
         if (mFace == null) return textureId;
+        if (mFace.getPoints().size()  == 0) return textureId;
         GLES20.glViewport(0, 0, mOutputWidth, mOutputHeight);
 
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[0]);

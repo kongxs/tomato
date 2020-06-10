@@ -17,6 +17,20 @@ using namespace std;
 
 class JniTracker {
 public:
+
+    JniTracker(JNIEnv *env) {
+
+//        pJclass = env->FindClass("fu/wanke/tomato/jni/Faces");
+        pJclass = static_cast<jclass>(env->NewGlobalRef(
+                env->FindClass("fu/wanke/tomato/jni/Faces")));
+
+        setMethodId = env->GetMethodID(pJclass, "set", "(IIIIII)V");
+        methodId = env->GetMethodID(pJclass, "addPoint", "(II)V");
+
+        conMethodId = env->GetMethodID(pJclass, "<init>", "()V");
+
+    }
+
     void init(JNIEnv *env,const char *model, const char *seeta);
 
     jobject startDetector(JNIEnv *env,const Mat& image,
@@ -24,6 +38,11 @@ public:
 private:
     CascadeClassifier faceCascade;
     Ptr<seeta::FaceAlignment> faceAlignment;
+    jmethodID setMethodId;
+    jmethodID methodId;
+    jclass pJclass;
+    jmethodID conMethodId;
+
 };
 
 

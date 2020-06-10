@@ -19,11 +19,7 @@ jobject JniTracker::startDetector(JNIEnv *env,const Mat& gray,
     int wid = 0;
     int hei = 0;
 
-    jclass pJclass = env->FindClass("fu/wanke/tomato/jni/Faces");
-    jmethodID conMethodId = env->GetMethodID(pJclass, "<init>", "()V");
-    jmethodID setMethodId = env->GetMethodID(pJclass, "set", "(IIIIII)V");
     jobject face = env->NewObject(pJclass, conMethodId);
-
 
     if (faces.size() > 0) {
 
@@ -52,7 +48,6 @@ jobject JniTracker::startDetector(JNIEnv *env,const Mat& gray,
         //检测 人眼 等五个点
         faceAlignment->PointDetectLandmarks(imageData, faceInfo, points);
 
-        jmethodID methodId = env->GetMethodID(pJclass, "addPoint", "(II)V");
 
         for (int i = 0; i < 5; ++i) {
             double d = points[i].x;
