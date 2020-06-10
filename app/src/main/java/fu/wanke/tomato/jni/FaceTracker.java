@@ -23,6 +23,7 @@ public class FaceTracker {
 
     private int screenW;
     private int screenH;
+    private long native_ptr;
 
 
     public FaceTracker(final Camera2Helper helper) {
@@ -35,13 +36,13 @@ public class FaceTracker {
                 //子线程 耗时再久 也不会对其他地方 (如：opengl绘制线程) 产生影响
                 synchronized (FaceTracker.this) {
                     //定位 线程中检测
-                    faces = detector((byte[]) msg.obj, helper.getSize().getWidth(),
+                    faces = detector(native_ptr,(byte[]) msg.obj, helper.getSize().getWidth(),
                             helper.getSize().getHeight());
-                    faces.set(screenW,screenH);
+                    if (faces != null)
+                        faces.set(screenW,screenH);
                 }
             }
         };
-
     }
 
     public void doDetector(byte[] data) {
@@ -56,14 +57,14 @@ public class FaceTracker {
 
     public void initinal(String path , String seatPath) {
         isInitinal = false;
-        init(path,seatPath);
+        native_ptr = init(path, seatPath);
         isInitinal = true;
 
     }
 
-    private native void init(String model,String seatPath);
+    private native long init(String model,String seatPath);
 
-    private native Faces detector(byte[] bytes, int previewWidth ,int previewHeight);
+    private native Faces detector(long self ,byte[] bytes, int previewWidth ,int previewHeight);
 
     public void set(int screenSurfaceWid, int screenSurfaceHeight) {
         this.screenW = screenSurfaceWid;

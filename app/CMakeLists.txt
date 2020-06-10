@@ -30,6 +30,7 @@ add_library( # Sets the name of the library.
         src/main/cpp/native-lib.cpp
         src/main/cpp/matutil.cpp
         src/main/cpp/effective.cpp
+        src/main/cpp/JniTracker.cpp
              # Provides a relative path to your source file(s).
         )
 
