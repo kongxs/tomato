@@ -10,6 +10,7 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(src/main/cpp/alignment)
 
@@ -46,25 +47,27 @@ find_library( # Sets the name of the path variable.
               # Specifies the name of the NDK library that
               # you want CMake to locate.
               log )
+include_directories(${CMAKE_SOURCE_DIR}/src/main/cpp/include)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/main/cpp)
 
 
-add_library(libopencv_java  # 库名字
+add_library(libopencv_java4  # 库名字
         SHARED
         IMPORTED)
-set_target_properties( libopencv_java
+set_target_properties( libopencv_java4
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libopencv_java.so)
+        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libopencv_java4.so)
 
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_GLAGS} -L/${CMAKE_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}")
 
 target_link_libraries( # Specifies the target library.
                        native-lib
-                        libopencv_java
+                        libopencv_java4
                         android
                         jnigraphics
                         seeta_fa_lib

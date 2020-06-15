@@ -86,9 +86,9 @@ jobject mat2Bitmap(JNIEnv *env ,cv::Mat src, bool needPremultiplyAlpha,jobject b
         if(info.format == ANDROID_BITMAP_FORMAT_RGBA_8888){
             Mat tmp(info.height, info.width, CV_8UC4, pixels);
             if(src.type() == CV_8UC1){
-                cvtColor(src, tmp, CV_GRAY2RGBA);
+                cvtColor(src, tmp, COLOR_GRAY2RGBA);
             }else if(src.type() == CV_8UC3){
-                cvtColor(src, tmp, CV_RGB2RGBA);
+                cvtColor(src, tmp, COLOR_RGB2RGBA);
             }else if(src.type() == CV_8UC4){
                 if(needPremultiplyAlpha){
                     cvtColor(src, tmp, COLOR_RGBA2mRGBA);
@@ -100,11 +100,11 @@ jobject mat2Bitmap(JNIEnv *env ,cv::Mat src, bool needPremultiplyAlpha,jobject b
             // info.format == ANDROID_BITMAP_FORMAT_RGB_565
             Mat tmp(info.height, info.width, CV_8UC2, pixels);
             if(src.type() == CV_8UC1){
-                cvtColor(src, tmp, CV_GRAY2BGR565);
+                cvtColor(src, tmp, COLOR_GRAY2BGR565);
             }else if(src.type() == CV_8UC3){
-                cvtColor(src, tmp, CV_RGB2BGR565);
+                cvtColor(src, tmp, COLOR_RGB2BGR565);
             }else if(src.type() == CV_8UC4){
-                cvtColor(src, tmp, CV_RGBA2BGR565);
+                cvtColor(src, tmp, COLOR_RGBA2BGR565);
             }
         }
         AndroidBitmap_unlockPixels(env, bitmap);
