@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved) {
 extern "C"
 JNIEXPORT jlong JNICALL
 Java_fu_wanke_tomato_jni_FaceTracker_init(JNIEnv *env, jobject thiz, jstring model,
-        jstring seatPath) {
+        jstring seatPath,jstring dlibPath) {
 //    faceCascade.load("/storage/emulated/0/haarcascade_frontalface_alt2.xml");
 
     const char *path = env->GetStringUTFChars(model, JNI_FALSE);
@@ -53,7 +53,9 @@ Java_fu_wanke_tomato_jni_FaceTracker_init(JNIEnv *env, jobject thiz, jstring mod
     faceAlignment = makePtr<seeta::FaceAlignment>(seatPat);
 
 
-    tracker->init(env,path,seatPat);
+    const char *dlibP = env->GetStringUTFChars(dlibPath, JNI_FALSE);
+    
+    tracker->init(env,path,seatPat,dlibP);
 
     LOGE("dlib init success ...");
 

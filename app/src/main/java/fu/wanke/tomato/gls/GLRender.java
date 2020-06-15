@@ -12,6 +12,7 @@ import java.io.File;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import fu.wanke.tomato.LocalAssetManager;
 import fu.wanke.tomato.OpenGlUtils;
 import fu.wanke.tomato.camera.Camera2Helper;
 import fu.wanke.tomato.filter.BeautifyFilter;
@@ -52,20 +53,28 @@ public class GLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameA
         tracker = new FaceTracker(camera2Helper);
 
 
-        String modelFile = "haarcascade_frontalface_alt2.xml";
-        String model = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +
-                modelFile;
+//        String modelFile = "haarcascade_frontalface_alt2.xml";
+//        String model = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +
+//                modelFile;
 
-        OpenGlUtils.copyAssets2SdCard(context , modelFile,
-                model);
+//        OpenGlUtils.copyAssets2SdCard(context , modelFile,
+//                model);
+//
+//
+//        String seatFile = "seeta_fa_v1.1.bin";
+//        String seatPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +
+//                seatFile;
+//        OpenGlUtils.copyAssets2SdCard(context , seatFile,
+//                seatPath);
+//
+//        String dlibFile = "shape_predictor_68_face_landmarks.dat";
+//        String dlibPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +
+//                dlibFile;
+//        OpenGlUtils.copyAssets2SdCard(context , dlibFile,
+//                dlibPath);
 
-
-        String seatFile = "seeta_fa_v1.1.bin";
-        String seatPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +
-                seatFile;
-        OpenGlUtils.copyAssets2SdCard(context , seatFile,
-                seatPath);
-        tracker.initinal(model , seatPath);
+        tracker.initinal(LocalAssetManager.PATH_FACE_MODEL , LocalAssetManager.PATH_SEAT_MODEL
+                , LocalAssetManager.PATH_DLIB_MODEL);
     }
 
     @Override

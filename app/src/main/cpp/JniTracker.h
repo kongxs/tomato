@@ -10,8 +10,11 @@
 #include "matutil.h"
 #include <android/log.h>
 
+#include <dlib/opencv.h>
+#include <dlib/image_processing.h>
+#include <dlib/image_processing/frontal_face_detector.h>
 
-
+using namespace dlib;
 using namespace cv;
 using namespace std;
 
@@ -53,12 +56,14 @@ public:
 
         clearMethod = env->GetMethodID(pJclass, "clearPoint", "()V");
 
+        addDlibPointMethodId = env->GetMethodID(pJclass, "addDlibPoint", "(II)V");
+
     }
 
-    void init(JNIEnv *env,const char *model, const char *seeta);
+    void init(JNIEnv *env,const char *model, const char *seeta,const char *dlibs);
 
     jobject startDetector(JNIEnv *env,const Mat& image,
-                       CV_OUT vector<Rect>& objects,const Mat& src,int width,int height);
+                       CV_OUT std::vector<Rect>& objects,const Mat& src,int width,int height);
 private:
 //    CascadeClassifier faceCascade;
     Ptr<DetectionBasedTracker> tracker;
@@ -68,6 +73,9 @@ private:
     jclass pJclass;
     jmethodID conMethodId;
     jmethodID clearMethod;
+    jmethodID addDlibPointMethodId;
+
+    shape_predictor sp;
 
 };
 

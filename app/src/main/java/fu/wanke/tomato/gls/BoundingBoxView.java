@@ -4,11 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -87,7 +85,7 @@ public class BoundingBoxView extends SurfaceView implements SurfaceHolder.Callba
         canvas.drawRect(x,y, right, bottom,mPaint);
 
 
-        List<Point> points = faces.getPoints();
+        List<Point> points = faces.getDlibPoints();
 
         for (int i = 0; i < points.size(); i++) {
 

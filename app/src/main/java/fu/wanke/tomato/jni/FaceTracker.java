@@ -55,14 +55,14 @@ public class FaceTracker {
 
     }
 
-    public void initinal(String path , String seatPath) {
+    public void initinal(String path , String seatPath,String dlibPath) {
         isInitinal = false;
-        native_ptr = init(path, seatPath);
+        native_ptr = init(path, seatPath,dlibPath);
         isInitinal = true;
 
     }
 
-    private native long init(String model,String seatPath);
+    private native long init(String model,String seatPath,String dlibPath);
 
     private native Faces detector(long self ,byte[] bytes, int previewWidth ,int previewHeight);
 

@@ -19,6 +19,7 @@ public class Faces {
     private int screenH;
 
     private List<Point> points = new ArrayList<>();
+    private List<Point> dlibPoints = new ArrayList<>();
 
 
     public void set(int x , int y ,int  width ,int height , int imgWidth ,int imgHeight) {
@@ -35,8 +36,17 @@ public class Faces {
         this.points.add(point);
     }
 
+    public void  addDlibPoint(int x, int y) {
+        Point point = new Point(x, y);
+        this.dlibPoints.add(point);
+    }
+
     public void clearPoint() {
         this.points.clear();
+    }
+
+    public List<Point> getDlibPoints() {
+        return dlibPoints;
     }
 
     public List<Point> getPoints() {

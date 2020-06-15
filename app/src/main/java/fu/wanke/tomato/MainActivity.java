@@ -1,13 +1,20 @@
 package fu.wanke.tomato;
 
+import android.app.ProgressDialog;
 import android.content.pm.ActivityInfo;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import fu.wanke.tomato.gls.BoundingBoxView;
@@ -17,10 +24,35 @@ import fu.wanke.tomato.jni.Faces;
 public class MainActivity extends AppCompatActivity {
 
 
+    Handler handler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+
+            switch (msg.what) {
+                case 0 :
+                    initAssets();
+                    break;
+                case 1:
+                    onCreate();
+                    break;
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+//        progressDialog = new ProgressDialog(MainActivity.this);
+//        progressDialog
+//                .show();
+        handler.sendEmptyMessage(0);
+
+//        onCreate();
+    }
+
+    private void onCreate() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         getSupportActionBar().hide();
@@ -32,6 +64,17 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setAttributes(params);
 
         init();
+    }
+
+    private void initAssets() {
+        new Thread(){
+            @Override
+            public void run() {
+                LocalAssetManager.init(MainActivity.this);
+                handler.sendEmptyMessage(1);
+            }
+        }.start();
+
     }
 
     private void init() {

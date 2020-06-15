@@ -12,6 +12,10 @@ cmake_minimum_required(VERSION 3.4.1)
 
 set(CMAKE_CXX_STANDARD 14)
 
+# 设置dlib
+include(src/main/cpp/dlib/cmake)
+
+
 add_subdirectory(src/main/cpp/alignment)
 
 
@@ -74,3 +78,7 @@ target_link_libraries( # Specifies the target library.
                        # Links the target library to the log library
                        # included in the NDK.
                        ${log-lib} )
+
+# 指定release编译选项
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s -O3 -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s -O3 -Wall")
