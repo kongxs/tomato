@@ -15,6 +15,28 @@
 using namespace cv;
 using namespace std;
 
+class CascadeDetectorAdapter : public DetectionBasedTracker::IDetector {
+public:
+    CascadeDetectorAdapter(Ptr<CascadeClassifier> detector) :
+            IDetector(),
+            Detector(detector) {
+            CV_Assert(detector);
+    }
+
+    void detect(const cv::Mat &Image, std::vector<cv::Rect> &objects) {
+            Detector->detectMultiScale(Image, objects, scaleFactor, minNeighbours, 0, minObjSize,
+                                       maxObjSize);
+    }
+
+    virtual ~CascadeDetectorAdapter() {
+    }
+
+private:
+    CascadeDetectorAdapter();
+
+    Ptr<CascadeClassifier> Detector;
+};
+
 class JniTracker {
 public:
 
@@ -31,8 +53,6 @@ public:
 
         clearMethod = env->GetMethodID(pJclass, "clearPoint", "()V");
 
-        face = env->NewGlobalRef(env->NewObject(pJclass, conMethodId));
-
     }
 
     void init(JNIEnv *env,const char *model, const char *seeta);
@@ -40,14 +60,14 @@ public:
     jobject startDetector(JNIEnv *env,const Mat& image,
                        CV_OUT vector<Rect>& objects,const Mat& src,int width,int height);
 private:
-    CascadeClassifier faceCascade;
+//    CascadeClassifier faceCascade;
+    Ptr<DetectionBasedTracker> tracker;
     Ptr<seeta::FaceAlignment> faceAlignment;
     jmethodID setMethodId;
     jmethodID methodId;
     jclass pJclass;
     jmethodID conMethodId;
     jmethodID clearMethod;
-    jobject face;
 
 };
 

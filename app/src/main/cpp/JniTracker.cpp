@@ -5,21 +5,36 @@
 #include "JniTracker.h"
 
 void JniTracker::init(JNIEnv *env ,const char *model, const char *seeta) {
-    faceCascade.load(model);
+
+//    faceCascade.load(model);
+
+    Ptr<CascadeDetectorAdapter> mainDetector = makePtr<CascadeDetectorAdapter>(
+            makePtr<CascadeClassifier>(model));
+    Ptr<CascadeDetectorAdapter> trackingDetector = makePtr<CascadeDetectorAdapter>(
+            makePtr<CascadeClassifier>(model));
+    DetectionBasedTracker::Parameters detectorParams;
+    //追踪器
+    tracker = makePtr<DetectionBasedTracker>(mainDetector, trackingDetector, detectorParams);
+
     faceAlignment = makePtr<seeta::FaceAlignment>(seeta);
 }
 
 jobject JniTracker::startDetector(JNIEnv *env,const Mat& gray,
                                CV_OUT vector<Rect>& faces,const Mat& src,int width,int height) {
 
-    faceCascade.detectMultiScale(gray, faces, 1.2, 5, 0, Size(30, 30));
+//    faceCascade.detectMultiScale(gray, faces, 1.2, 5, 0, Size(30, 30));
+
+    tracker->process(gray);
+    //拿到人脸坐标信息
+    tracker->getObjects(faces);
 
     int x = -1;
     int y = -1;
     int wid = 0;
     int hei = 0;
 
-    env->CallVoidMethod(face,clearMethod);
+//    env->CallVoidMethod(face,clearMethod);
+    jobject face = env->NewObject(pJclass, conMethodId);
 
     if (faces.size() > 0) {
 
